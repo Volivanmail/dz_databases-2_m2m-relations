@@ -1,3 +1,5 @@
+from pprint import pprint
+
 from django.contrib import admin
 from django.core.exceptions import ValidationError
 from django.forms import BaseInlineFormSet
@@ -8,21 +10,22 @@ from .models import Article, ArticleScope, Tag
 class ArticleScopesInlineFormset(BaseInlineFormSet):
 
     def clean(self):
+        count = 0
         for form in self.forms:
-            count = 0
-            if count > 1:
-                raise ValidationError('Основной тег может быть только один')
-            elif form.cleaned_data['is_main'] is True:
+            pprint(form.cleaned_data['is_main'])
+            if form.cleaned_data['is_main'] is True:
                 count +=1
-            else:
-                continue
+            elif count > 1:
+                raise ValidationError('Основной тег может быть только один')
         return super().clean()  # вызываем базовый код переопределяемого метода
+
+
 
 
 class ArticleScopeInline(admin.TabularInline):
     model = ArticleScope
     extra = 1
-    # formset = ArticleScopesInlineFormset
+    formset = ArticleScopesInlineFormset
 
 
 @admin.register(Article)
